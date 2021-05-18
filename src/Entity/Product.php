@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -43,6 +45,22 @@ class Product
      * @ORM\ManyToOne(targetEntity=Brand::class, inversedBy="products")
      */
     private $brand_id;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="products")
+     */
+    private $categories_id;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Category::class, mappedBy="product_id")
+     */
+    private $categories;
+
+    public function __construct()
+    {
+        $this->categories_id = new ArrayCollection();
+        $this->categories = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -105,6 +123,57 @@ class Product
     public function setBrandId(?Brand $brand_id): self
     {
         $this->brand_id = $brand_id;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Category[]
+     */
+    public function getCategoriesId(): Collection
+    {
+        return $this->categories_id;
+    }
+
+    public function addCategoriesId(Category $categoriesId): self
+    {
+        if (!$this->categories_id->contains($categoriesId)) {
+            $this->categories_id[] = $categoriesId;
+        }
+
+        return $this;
+    }
+
+    public function removeCategoriesId(Category $categoriesId): self
+    {
+        $this->categories_id->removeElement($categoriesId);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Category[]
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+            $category->addProductId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->removeElement($category)) {
+            $category->removeProductId($this);
+        }
 
         return $this;
     }
