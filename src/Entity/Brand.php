@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ApiResource(
- *     itemOperations={"put", "delete"}
+ *     itemOperations={"put", "delete", "get"}
  * )
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  */
