@@ -9,7 +9,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ApiResource()
+ * @ApiResource(
+ *     itemOperations={"put", "delete"}
+ * )
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  */
 class Brand
