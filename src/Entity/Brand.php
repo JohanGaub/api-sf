@@ -7,10 +7,13 @@ use App\Repository\BrandRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     itemOperations={"put", "delete", "get"}
+ *     itemOperations={"put", "delete", "get"},
+ *     normalizationContext={"groups"={"product:read"}},
+ *     denormalizationContext={"groups"={"product:write"}}
  * )
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  */
@@ -20,16 +23,20 @@ class Brand
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups("product:read")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups("product:read")
+     * @Groups("product:write")
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=Product::class, mappedBy="brand_id")
+     * @Groups("product:read")
      */
     private $products;
 
