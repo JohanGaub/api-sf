@@ -11,10 +11,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     itemOperations={"put", "delete", "get"},
- *     normalizationContext={"groups"={"product:read"}},
- *     denormalizationContext={"groups"={"product:write"}}
- * )
+ *  normalizationContext={"groups"={"brand:read"}},
+ *  denormalizationContext={"groups"={"brand:write"}},
+ *     )
  * @ORM\Entity(repositoryClass=BrandRepository::class)
  */
 class Brand
@@ -23,20 +22,18 @@ class Brand
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("product:read")
+     * @Groups({"brand:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups("product:read")
-     * @Groups("product:write")
+     * @Groups({"brand:read", "brand:write"})
      */
     private $name;
 
     /**
      * @ORM\OneToMany(targetEntity=Product::class, mappedBy="brand_id")
-     * @Groups("product:read")
      */
     private $products;
 
