@@ -7,11 +7,13 @@ use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     itemOperations={"get", "put", "delete"}
+ *  normalizationContext={"groups"={"product:read"}},
+ *  denormalizationContext={"groups"={"product:write"}},
  * )
  * @ORM\Entity(repositoryClass=ProductRepository::class)
  */
@@ -21,16 +23,19 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"product:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"product:read", "product:write"})
      */
-    private $active;
+    private $active = "true";
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"product:read", "product:write"})
      */
     private $name;
 
@@ -40,32 +45,31 @@ class Product
      *    message = "The url '{{ value }}' is not a valid url",
      *    protocols = {"http", "https", "ftp"}
      * )
+     * @Groups({"product:read", "product:write"})
      */
     private $url;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"product:read", "product:write"})
      */
     private $description;
 
     /**
      * @ORM\ManyToOne(targetEntity=Brand::class, inversedBy="products")
+     * @Groups({"product:read", "product:write"})
      */
-    private $brand_id;
+    public $brand_id;
 
     /**
      * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="products")
-     */
-    private $categories_id;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=Category::class, mappedBy="product_id")
+     * @Groups({"product:read", "product:write"})
+     * @ORM\JoinColumn(nullable=true)
      */
     private $categories;
 
     public function __construct()
     {
-        $this->categories_id = new ArrayCollection();
         $this->categories = new ArrayCollection();
     }
 
@@ -137,30 +141,6 @@ class Product
     /**
      * @return Collection|Category[]
      */
-    public function getCategoriesId(): Collection
-    {
-        return $this->categories_id;
-    }
-
-    public function addCategoriesId(Category $categoriesId): self
-    {
-        if (!$this->categories_id->contains($categoriesId)) {
-            $this->categories_id[] = $categoriesId;
-        }
-
-        return $this;
-    }
-
-    public function removeCategoriesId(Category $categoriesId): self
-    {
-        $this->categories_id->removeElement($categoriesId);
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|Category[]
-     */
     public function getCategories(): Collection
     {
         return $this->categories;
@@ -170,7 +150,6 @@ class Product
     {
         if (!$this->categories->contains($category)) {
             $this->categories[] = $category;
-            $category->addProductId($this);
         }
 
         return $this;
@@ -178,9 +157,7 @@ class Product
 
     public function removeCategory(Category $category): self
     {
-        if ($this->categories->removeElement($category)) {
-            $category->removeProductId($this);
-        }
+        $this->categories->removeElement($category);
 
         return $this;
     }
